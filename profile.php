@@ -127,7 +127,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     padding:0 18px;
   }
   .btn-primary:hover{ background:var(--primary-hover); transform:translateY(-2px); }
-  .btn-secondary{ background:#6c757d; border:none; color:#fff; height:44px; padding:0 18px; }
+  .btn-secondary{ 
+    background:#6c757d; 
+    border:none; 
+    color:#fff; 
+    height:44px; 
+    padding:0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
   /* Small back button in top right */
   .btn-back{ 
@@ -182,7 +191,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .container{ margin-left:0; padding:12px; }
     .profile-card{ padding:16px; }
     .avatar-preview, .avatar-placeholder{ width:110px; height:110px; }
-    .btn-primary, .btn-secondary{ width:100%; display:block; }
+    .btn-primary, .btn-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
     .d-flex.gap-2.mt-4{ flex-direction:column; gap:10px; }
     
     /* Mobile header adjustments */

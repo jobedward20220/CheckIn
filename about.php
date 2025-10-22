@@ -438,7 +438,7 @@ include __DIR__ . "/user_sidebar.php";
       <div class="header-wrapper">
         <div class="title-container">
           <h1 class="page-title"><i class="fas fa-hotel me-2"></i>About CheckIn</h1>
-          <p class="page-subtitle">Your trusted partner for comfortable and convenient hotel bookings</p>
+          <p class="page-subtitle">Your trusted partner for comfortable and convenient motel bookings</p>
         </div>
         <a href="javascript:history.back()" class="btn-back">
           <i class="fas fa-arrow-left"></i>
@@ -453,7 +453,7 @@ include __DIR__ . "/user_sidebar.php";
           <div class="col-md-6">
             <h2 class="section-title">Our Story</h2>
             <p class="lead">
-              CheckIn was founded with a simple mission: to make hotel booking <span class="highlight">seamless, secure, and satisfying</span> for every traveler.
+              CheckIn was founded with a simple mission: to make motel booking <span class="highlight">seamless, secure, and satisfying</span> for every traveler.
             </p>
             <p>
               Since our inception, we've been dedicated to providing exceptional service and innovative solutions that transform the way people book accommodations. Our platform combines cutting-edge technology with personalized service to ensure every stay is memorable.

@@ -343,7 +343,7 @@ include __DIR__ . "/user_sidebar.php";
         <i class="fas fa-info-circle"></i>
         <div>
           <div class="fw-bold">About CheckIn</div>
-          <small class="opacity-75">Learn more about our hotel booking system</small>
+          <small class="opacity-75">Learn more about our motel booking system</small>
         </div>
       </a>
     </div>

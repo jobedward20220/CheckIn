@@ -26,12 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $chk = $conn->prepare("SELECT id FROM bookings WHERE user_id=? AND status='checked_out' LIMIT 1");
       $chk->bind_param("i", $user_id);
       $chk->execute(); $chk->store_result();
-      if ($chk->num_rows === 0) $msg = "You can only leave a hotel review after completing a booking.";
+      if ($chk->num_rows === 0) $msg = "You can only leave a motel review after completing a booking.";
       else {
         $ins = $conn->prepare("INSERT INTO reviews (user_id, room_type_id, room_id, rating, comment, is_visible) VALUES (?, NULL, NULL, ?, ?, 1)");
         $ins->bind_param("iis", $user_id, $rating, $comment);
         $ins->execute();
-        $msg = $ins->affected_rows ? 'Hotel review submitted.' : 'Failed to submit review.';
+        $msg = $ins->affected_rows ? 'Motel review submitted.' : 'Failed to submit review.';
       }
     } else {
       // room-specific review: verify user completed that room
@@ -409,7 +409,7 @@ $myReviewsRes = $myReviews->get_result();
                 <?php $selRoom = $_POST['room_id'] ?? ''; ?>
                 <select name="room_id" class="form-select" required>
                   <option value="">Choose...</option>
-                  <option value="hotel" <?= $selRoom === 'hotel' ? 'selected' : '' ?>>Overall Hotel Experience</option>
+                  <option value="hotel" <?= $selRoom === 'hotel' ? 'selected' : '' ?>>Overall Motel Experience</option>
                   <?php while($rd = $roomsDoneRes->fetch_assoc()): ?>
                     <?php $val = intval($rd['id']); ?>
                     <option value="<?=$val?>" <?= (string)$val === (string)$selRoom ? 'selected' : '' ?>>
@@ -445,7 +445,7 @@ $myReviewsRes = $myReviews->get_result();
       <!-- Recent Hotel Reviews Section -->
       <div class="card">
         <div class="card-header">
-          <i class="fas fa-hotel me-2"></i>Recent Overall Hotel Reviews
+          <i class="fas fa-hotel me-2"></i>Recent Overall Motel Reviews
         </div>
         <div class="card-body">
           <?php
@@ -492,7 +492,7 @@ $myReviewsRes = $myReviews->get_result();
           <?php else: ?>
             <div class="text-muted text-center py-4">
               <i class="fas fa-comment-slash fa-2x mb-3"></i>
-              <p>No overall hotel reviews yet.</p>
+              <p>No overall motel reviews yet.</p>
             </div>
           <?php endif; ?>
         </div>

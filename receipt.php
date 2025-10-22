@@ -248,9 +248,9 @@ $pageHtml = '<!doctype html>
   <div class="receipt-container">
     <!-- Receipt Header -->
     <div class="receipt-header">
-      <h1 class="hotel-name">CHECKIN HOTEL</h1>
+      <h1 class="hotel-name">CHECKIN MOTEL</h1>
       <div class="hotel-address">Sudlon, Maguikay, Mandaue City 6014 Cebu City Central Visayas</div>
-      <div class="hotel-contact">Tel: (02) 8123-4567 | Email: info@checkinhotel.com</div>
+      <div class="hotel-contact">Tel: (02) 8123-4567 | Email: info@checkinmotel.com</div>
       <div class="hotel-contact">VAT Reg TIN: 123-456-789-000</div>
     </div>
 
@@ -373,7 +373,7 @@ $pageHtml .= '
 
     <!-- Thank You Message -->
     <div class="thank-you">
-      <strong>THANK YOU FOR CHOOSING CHECKIN HOTEL!</strong><br>
+      <strong>THANK YOU FOR CHOOSING CHECKIN MOTEL!</strong><br>
       <span>This receipt is your official proof of payment.</span><br>
       <span>For inquiries: (02) 8123-4567</span>
     </div>

@@ -1,4 +1,3 @@
-
 <?php
 // ─────────────────────────────────────────────
 //  Secure session + Admin Access
@@ -37,61 +36,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action']) && !empty(
         $row = $chk->get_result()->fetch_assoc();
 
         if ($row && intval($row['receipt_sent']) === 0) {
-          $bkq = $conn->prepare("SELECT b.*, r.room_number, t.name AS room_type, t.hourly_rate, u.first_name, u.middle_name, u.last_name 
-                                 FROM bookings b 
-                                 JOIN rooms r ON b.room_id=r.id 
-                                 JOIN room_types t ON r.room_type_id=t.id 
-                                 JOIN users u ON b.user_id=u.id 
-                                 WHERE b.id=? LIMIT 1");
-          $bkq->bind_param("i", $id);
-          $bkq->execute();
-          $bk = $bkq->get_result()->fetch_assoc();
+          // Use receipt.php for HTML generation
+          define('GENERATING_RECEIPT_FOR_EMAIL', true);
+          ob_start();
+          $_GET['booking_id'] = $id;
+          include __DIR__ . '/../receipt.php'; // will produce $pageHtml
+          $html = ob_get_clean();
 
-          if ($bk) {
-            $html = '<!doctype html><html><head><meta charset="utf-8"><title>Receipt</title></head><body>';
-            $html .= '<h2>CheckIn Receipt</h2>';
-            $html .= '<p>Booking ID: ' . htmlspecialchars($bk['id']) . '</p>';
-            $fullName = $bk['first_name'] . (!empty($bk['middle_name']) ? ' ' . $bk['middle_name'] : '') . ' ' . $bk['last_name'];
-            $html .= '<p>Customer: ' . htmlspecialchars(trim($fullName)) . '</p>';
-            $html .= '<p>Room: ' . htmlspecialchars($bk['room_number']) . ' (' . htmlspecialchars($bk['room_type']) . ')</p>';
-            $html .= '<p>Start: ' . htmlspecialchars($bk['start_time']) . '</p>';
-            $html .= '<p>End: ' . htmlspecialchars($bk['end_time']) . '</p>';
-            $html .= '<p>Hours: ' . intval($bk['hours']) . '</p>';
-            $html .= '<p>Total: ₱' . number_format($bk['total_amount'], 2) . '</p>';
-            $html .= '<p>Payment method: ' . htmlspecialchars($bk['payment_method']) . '</p>';
-            $html .= '<p>Status: checked_out</p></body></html>';
+          // Generate PDF file
+          $receiptPath = __DIR__ . '/../uploads/receipts';
+          if (!file_exists($receiptPath)) @mkdir($receiptPath, 0755, true);
+          $pdfFile = $receiptPath . '/receipt_' . $id . '.pdf';
+          $pdfCreated = false;
 
-            $receiptPath = __DIR__ . '/../uploads/receipts';
-            if (!file_exists($receiptPath)) @mkdir($receiptPath, 0755, true);
-            $pdfFile = $receiptPath . '/receipt_' . $id . '.pdf';
-            $pdfCreated = false;
-
-            if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-              require_once __DIR__ . '/../vendor/autoload.php';
-              try {
-                $dompdf = new Dompdf\Dompdf();
-                $dompdf->loadHtml($html);
-                $dompdf->setPaper('A4', 'portrait');
-                $dompdf->render();
-                file_put_contents($pdfFile, $dompdf->output());
-                $pdfCreated = file_exists($pdfFile);
-              } catch (Exception $e) {
-                error_log('Dompdf error: ' . $e->getMessage());
-              }
+          if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+            require_once __DIR__ . '/../vendor/autoload.php';
+            try {
+              $dompdf = new Dompdf\Dompdf();
+              $dompdf->loadHtml($html);
+              $dompdf->setPaper('A4', 'portrait');
+              $dompdf->render();
+              file_put_contents($pdfFile, $dompdf->output());
+              $pdfCreated = file_exists($pdfFile);
+            } catch (Exception $e) {
+              error_log('Dompdf error: ' . $e->getMessage());
             }
+          }
 
-            require_once __DIR__ . '/../includes/mail.php';
-            $to = $row['email'];
-            $subject = 'Your booking receipt (Booking #' . $id . ')';
-            $body = $html;
-            $sent = $pdfCreated ? send_mail_with_attachment($to, $subject, $body, true, $pdfFile)
-                                : send_mail($to, $subject, $body, true);
+          // Send receipt email
+          require_once __DIR__ . '/../includes/mail.php';
+          $to = $row['email'];
+          $subject = 'Your booking receipt (Booking #' . $id . ')';
+          $body = $html;
+          $sent = $pdfCreated
+            ? send_mail_with_attachment($to, $subject, $body, true, $pdfFile)
+            : send_mail($to, $subject, $body, true);
 
-            if ($sent) {
-              $upd = $conn->prepare("UPDATE bookings SET receipt_sent=1 WHERE id=?");
-              $upd->bind_param("i", $id);
-              $upd->execute();
-            }
+          if ($sent) {
+            $upd = $conn->prepare("UPDATE bookings SET receipt_sent=1 WHERE id=?");
+            $upd->bind_param("i", $id);
+            $upd->execute();
           }
         }
         $chk->close();
@@ -153,17 +137,14 @@ include "admin_sidebar.php";
     --sidebar-width: 250px;
     --content-max: 1200px;
   }
-
   body {
     background-color: #fff;
     min-height: 100vh;
   }
-
   .page-wrapper {
     padding: 1.25rem;
     transition: margin-left .2s ease;
   }
-
   @media (min-width: 992px) {
     .page-wrapper {
       margin-left: var(--sidebar-width);
@@ -173,12 +154,6 @@ include "admin_sidebar.php";
       margin: 0 auto;
     }
   }
-
-  @media (max-width: 991.98px) {
-    .page-wrapper { margin-left: 0; }
-    .page-inner { padding-top: 0.25rem; }
-  }
-
   .table thead { background-color: #c62828; color: white; }
   .btn-outline-danger { color: #c62828; border-color: #c62828; }
   .btn-outline-danger:hover { background-color: #c62828; color: white; }
@@ -270,4 +245,3 @@ include "admin_sidebar.php";
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

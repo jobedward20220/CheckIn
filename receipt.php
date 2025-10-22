@@ -1,7 +1,9 @@
 <?php
-session_start();
-require_once "includes/auth_check.php";
-require_once "db_connect.php";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . "/includes/auth_check.php";
+require_once __DIR__ . "/db_connect.php";
 $booking_id = intval($_GET['booking_id'] ?? 0);
 if ($booking_id <= 0) die('Invalid booking id');
 // fetch booking

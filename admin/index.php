@@ -15,9 +15,9 @@ include "admin_sidebar.php";
 // ─────────────────────────────────────────────
 //  Real database queries for room statistics
 // ─────────────────────────────────────────────
-$available_rooms = $conn->query("SELECT COUNT(*) AS c FROM rooms WHERE status='available'")->fetch_assoc()['c'] ?? 0;
-$reserved_rooms  = $conn->query("SELECT COUNT(DISTINCT r.id) AS c FROM rooms r JOIN bookings b ON b.room_id=r.id WHERE b.status='reserved'")->fetch_assoc()['c'] ?? 0;
-$ongoing_rooms   = $conn->query("SELECT COUNT(*) AS c FROM bookings WHERE status IN ('confirmed','ongoing')")->fetch_assoc()['c'] ?? 0;
+$available_rooms = $conn->query("SELECT COUNT(*) AS c FROM rooms WHERE status='available' AND is_visible=1")->fetch_assoc()['c'] ?? 0;
+$reserved_rooms  = $conn->query("SELECT COUNT(DISTINCT r.id) AS c FROM rooms r JOIN bookings b ON b.room_id=r.id WHERE b.status='reserved' AND r.is_visible=1")->fetch_assoc()['c'] ?? 0;
+$ongoing_rooms   = $conn->query("SELECT COUNT(DISTINCT r.id) AS c FROM bookings b JOIN rooms r ON b.room_id=r.id WHERE b.status IN ('confirmed','ongoing') AND r.is_visible=1")->fetch_assoc()['c'] ?? 0;
 ?>
 <!doctype html>
 <html lang="en">

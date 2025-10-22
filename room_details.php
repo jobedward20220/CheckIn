@@ -215,6 +215,30 @@ function normalizeDatetimeToHour(elementId) {
     }
   }
 }
+
+// Disable booking if "online" payment is selected
+document.addEventListener('DOMContentLoaded', function () {
+  const paymentSelect = document.querySelector('select[name="payment"]');
+  const bookBtn = document.querySelector('button.btn-success');
+  if (!paymentSelect || !bookBtn) return;
+
+  // Create a warning message element
+  const warn = document.createElement('div');
+  warn.className = 'alert alert-warning mt-2';
+  warn.style.display = 'none';
+  warn.textContent = 'Online payment is currently unavailable (WIP). Please select Cash.';
+  bookBtn.insertAdjacentElement('afterend', warn);
+
+  paymentSelect.addEventListener('change', function () {
+    if (this.value === 'online') {
+      bookBtn.disabled = true;
+      warn.style.display = 'block';
+    } else {
+      bookBtn.disabled = false;
+      warn.style.display = 'none';
+    }
+  });
+});
 </script>
 </head>
 <body>

@@ -123,7 +123,9 @@ include "admin_sidebar.php";
 
             <div class="mb-3">
               <label class="form-label fw-semibold text-danger">Description</label>
-              <textarea name="description" class="form-control border-danger" rows="4" required><?= htmlspecialchars($room['description']) ?></textarea>
+              <!-- Description is intentionally read-only in the admin UI per policy. The hidden input preserves the value so DB remains unchanged when the form posts. -->
+              <div class="form-control border-danger" style="height:auto; white-space:pre-wrap; background:#f8f9fa; color:#333;"><?= htmlspecialchars($room['description']) ?></div>
+              <input type="hidden" name="description" value="<?= htmlspecialchars($room['description']) ?>">
             </div>
 
             <div class="mb-3">

@@ -639,11 +639,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <h1>CheckIn</h1>
       <p>Welcome to CheckIn — your modern motel booking platform designed for comfort, style, and simplicity. Wherever you go, we make every stay feel like home.</p>
       <div class="social-icons">
-        <i class="fab fa-facebook-f"></i>
-        <i class="fab fa-twitter"></i>
-        <i class="fab fa-instagram"></i>
-        <i class="fab fa-linkedin-in"></i>
-      </div>
+  <a href="https://www.facebook.com/kevenjohn.pama" target="_blank" rel="noopener noreferrer" class="text-decoration-none me-3 text-white" aria-label="Facebook">
+    <i class="fab fa-facebook-f"></i>
+  </a>
+  <a href="https://x.com/alphashitsodog" target="_blank" rel="noopener noreferrer" class="text-decoration-none me-3 text-white" aria-label="Twitter">
+    <i class="fab fa-twitter"></i>
+  </a>
+  <a href="https://www.instagram.com/abdulgulaman/" target="_blank" rel="noopener noreferrer" class="text-decoration-none me-3 text-white" aria-label="Instagram">
+    <i class="fab fa-instagram"></i>
+  </a>
+  <a href="https://www.linkedin.com/in/kevin-john-pama-1a227a355/" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-white" aria-label="LinkedIn">
+    <i class="fab fa-linkedin-in"></i>
+  </a>
+</div>
     </div>
 
     <div class="login-right">

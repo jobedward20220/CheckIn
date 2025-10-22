@@ -637,7 +637,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="login-wrapper">
     <div class="login-left">
       <h1>CheckIn</h1>
-      <p>Welcome to CheckIn — your modern hotel booking platform designed for comfort, style, and simplicity. Wherever you go, we make every stay feel like home.</p>
+      <p>Welcome to CheckIn — your modern motel booking platform designed for comfort, style, and simplicity. Wherever you go, we make every stay feel like home.</p>
       <div class="social-icons">
         <i class="fab fa-facebook-f"></i>
         <i class="fab fa-twitter"></i>

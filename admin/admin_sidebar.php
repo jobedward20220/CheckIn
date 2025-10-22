@@ -40,19 +40,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
     background-color: var(--admin-red-dark);
   }
 
-  /* Logout button outlined white */
-  .logout-btn {
-    background-color: transparent;
-    color: #fff;
-    border: 2px solid #fff;
-    font-weight: 600;
-    transition: all 0.2s ease;
-  }
-
-  .logout-btn:hover {
-    background-color: #fff;
-    color: var(--admin-red-dark);
-  }
 
   .content { padding: 1.5rem; }
 
@@ -124,7 +111,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 
 <div class="mt-auto mb-3">
-  <a href="../logout.php" class="btn logout-btn w-100 fw-semibold">Logout</a>
+  <a href="../logout.php" class="btn logout-btn w-100 fw-semibold text-white">Logout</a>
 </div>
 
   </div>

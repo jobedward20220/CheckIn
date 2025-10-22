@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'local/checkin',
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
-        'reference' => 'c3f25710d2572370237d1daa6cdaed11edd274cb',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => '8f846fd4d82cc32e3a6ae5b3c0478491c8a6ad67',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -20,9 +20,9 @@
             'dev_requirement' => false,
         ),
         'local/checkin' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => 'c3f25710d2572370237d1daa6cdaed11edd274cb',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => '8f846fd4d82cc32e3a6ae5b3c0478491c8a6ad67',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

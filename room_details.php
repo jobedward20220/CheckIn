@@ -295,7 +295,7 @@ function normalizeDatetimeToHour(elementId) {
 
     <div class="col-md-4">
       <div class="card">
-        <div class="card-header">Hotel Overview</div>
+        <div class="card-header">Motel Overview</div>
         <div class="card-body">
           <p><strong>Average rating:</strong> <?= $overall['avg_rating'] ? number_format($overall['avg_rating'], 2) : 'N/A' ?></p>
           <p><strong>Total reviews:</strong> <?= $overall['count_reviews'] ?></p>

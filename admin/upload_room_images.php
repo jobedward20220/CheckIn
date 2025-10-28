@@ -175,9 +175,11 @@ include "admin_sidebar.php";
     <?php while ($im = $imgsRes->fetch_assoc()): ?>
       <div class="col-6 col-sm-4 col-md-3 mb-4">
         <div class="card border-0 shadow-sm img-card">
-          <img src="<?= htmlspecialchars('../'.$im['filepath']) ?>"
-               class="card-img-top"
-               style="height: 180px; object-fit: cover; border-bottom: 3px solid <?= $im['is_primary'] ? '#dc3545' : '#dee2e6' ?>;">
+         <img src="<?= htmlspecialchars('../'.$im['filepath']) ?>"
+     data-src="<?= htmlspecialchars('../'.$im['filepath']) ?>"
+     class="card-img-top click-enlarge"
+     style="cursor: zoom-in; height: 180px; object-fit: cover; border-bottom: 3px solid <?= $im['is_primary'] ? '#dc3545' : '#dee2e6' ?>;"
+     alt="Room Image <?= intval($im['id']) ?>">
           <div class="card-body text-center">
             <?php if ($im['is_primary']): ?>
               <span class="badge bg-danger mb-2">Primary</span>
@@ -207,5 +209,5 @@ include "admin_sidebar.php";
 
   </div>
 </body>
-</html>
 <?php require_once __DIR__ . '/../includes/image_modal.php'; ?>
+</html>

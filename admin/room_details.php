@@ -116,6 +116,8 @@ include "admin_sidebar.php";
     .scrollable-row img { height: 120px; }
     .d-flex.flex-md-row { flex-direction: column !important; align-items: flex-start !important; gap: 10px; }
   }
+  
+
 </style>
 </head>
 
@@ -136,7 +138,14 @@ include "admin_sidebar.php";
       <div class="scrollable-row mt-3">
         <?php while($im=$imgsRes->fetch_assoc()): ?>
           <div class="col-6 col-md-4 mb-3 text-center me-2">
-            <img src="<?= htmlspecialchars('../'.$im['filepath']) ?>" class="img-fluid img-thumb">
+            <img 
+  src="<?= htmlspecialchars('../'.$im['filepath']) ?>" 
+  class="img-fluid img-thumb click-enlarge" 
+  data-src="<?= htmlspecialchars('../'.$im['filepath']) ?>" 
+  alt="Room image"
+  style="cursor:zoom-in;"
+>
+
             <div class="mt-2">
               <?php if($im['is_primary']): ?>
                 <span class="badge bg-danger">Primary</span>

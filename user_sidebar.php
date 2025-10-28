@@ -143,11 +143,17 @@ if (!isset($_SESSION['user_id'])) {
   }
 
   /* ✅ Logout stays at bottom */
-  .uc-menu .logout {
+  /* Adjust logout button position - not exactly at the bottom */
+.uc-menu .logout {
     margin-top: auto;
+    margin-bottom: 60px; /* Adds space from the bottom */
     border-top: 1px solid rgba(255, 255, 255, 0.2);
-  }
+}
 
+/* Optional: Add some padding to the menu container */
+.uc-menu {
+    padding-bottom: 10px;
+}
   /* Adjust page content */
   main,
   .content-wrapper,

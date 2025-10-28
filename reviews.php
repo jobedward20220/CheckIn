@@ -22,23 +22,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $msg = "Invalid rating.";
   } else {
     if ($is_hotel) {
-      // check if user has any completed booking at all
-      $chk = $conn->prepare("SELECT id FROM bookings WHERE user_id=? AND status='checked_out' LIMIT 1");
-      $chk->bind_param("i", $user_id);
-      $chk->execute(); $chk->store_result();
-      if ($chk->num_rows === 0) $msg = "You can only leave a motel review after completing a booking.";
-      else {
-        $ins = $conn->prepare("INSERT INTO reviews (user_id, room_type_id, room_id, rating, comment, is_visible) VALUES (?, NULL, NULL, ?, ?, 1)");
-        $ins->bind_param("iis", $user_id, $rating, $comment);
-        $ins->execute();
-        $msg = $ins->affected_rows ? 'Motel review submitted.' : 'Failed to submit review.';
-      }
+  // check if user has any completed booking at all
+  $chk = $conn->prepare("SELECT id FROM bookings WHERE user_id=? AND status='checked_out' LIMIT 1");
+  $chk->bind_param("i", $user_id);
+  $chk->execute(); 
+  $chk->store_result();
+
+  if ($chk->num_rows === 0) {
+    // user has never checked out of any booking
+    $msg = "You can only leave a motel review after completing a booking.";
+  } else {
+    // insert overall motel review
+    $ins = $conn->prepare("INSERT INTO reviews (user_id, room_type_id, room_id, rating, comment, is_visible) VALUES (?, NULL, NULL, ?, ?, 1)");
+    $ins->bind_param("iis", $user_id, $rating, $comment);
+    $ins->execute();
+
+    if ($ins->affected_rows) {
+      // redirect to same page to show success alert
+      header("Location: reviews.php?msg=review_submitted");
+      exit;
     } else {
+      // insert failed
+      header("Location: reviews.php?err=cannot_submit_review");
+      exit;
+    }
+  }
+}
+ else {
       // room-specific review: verify user completed that room
       $chk = $conn->prepare("SELECT id FROM bookings WHERE user_id=? AND room_id=? AND status='checked_out' LIMIT 1");
       $chk->bind_param("ii", $user_id, $room_id);
       $chk->execute(); $chk->store_result();
-      if ($chk->num_rows === 0) $msg = 'You can only review rooms you have completed (checked out).';
+      if ($chk->num_rows === 0) {
+  // 🚫 No completed booking: redirect back with error
+  if ($return_to) {
+    header('Location: ' . $return_to . '&err=cannot_submit_review');
+    exit;
+  }
+  header('Location: room_details.php?id=' . intval($room_id) . '&err=cannot_submit_review');
+  exit;
+} 
       else {
         // determine room_type_id for the room
         $rt = $conn->prepare("SELECT room_type_id FROM rooms WHERE id=?");
@@ -48,16 +71,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ins->bind_param("iiiis", $user_id, $room_type_id, $room_id, $rating, $comment);
         $ins->execute();
         if ($ins->affected_rows) {
-          if ($return_to) {
-            header('Location: '. $return_to .'?msg=review_submitted'); exit;
-          }
-          header('Location: room_details.php?id=' . intval($room_id)); exit;
-        } else {
-          if ($return_to) {
-            header('Location: '. $return_to .'?err=cannot_submit_review'); exit;
-          }
-          $msg = 'Failed to submit review.';
-        }
+  // ✅ Redirect back to room_details.php and show success message
+  if ($return_to) {
+    header('Location: '. $return_to .'&review=success');
+    exit;
+  }
+  header('Location: room_details.php?id=' . intval($room_id) . '&review=success');
+  exit;
+} else {
+  // ❌ Redirect back with failure
+  if ($return_to) {
+    header('Location: '. $return_to .'&err=cannot_submit_review');
+    exit;
+  }
+  header('Location: room_details.php?id=' . intval($room_id) . '&err=cannot_submit_review');
+  exit;
+}
       }
     }
   }
@@ -66,7 +95,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // include sidebar after POST handling so header() can redirect safely
 include __DIR__ . "/user_sidebar.php";
 // fetch rooms that the user has completed (checked_out)
-$roomsDone = $conn->prepare("SELECT DISTINCT r.id, r.room_number, t.name as room_type FROM bookings b JOIN rooms r ON b.room_id=r.id JOIN room_types t ON r.room_type_id=t.id WHERE b.user_id=? AND b.status='checked_out'");
+$roomsDone = $conn->prepare("
+  SELECT DISTINCT r.id, r.room_number, t.name AS room_type 
+  FROM bookings b
+  JOIN rooms r ON b.room_id = r.id 
+  JOIN room_types t ON r.room_type_id = t.id 
+  WHERE b.user_id = ? 
+    AND b.status = 'checked_out' 
+    AND r.is_visible = 1
+");
 $roomsDone->bind_param("i", $user_id);
 $roomsDone->execute();
 $roomsDoneRes = $roomsDone->get_result();

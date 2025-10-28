@@ -33,7 +33,13 @@ $reviews->execute();
 $reviewsRes = $reviews->get_result();
 
 // overall hotel reviews
-$overall = $conn->query("SELECT AVG(rating) as avg_rating, COUNT(*) as count_reviews FROM reviews WHERE is_visible=1")->fetch_assoc();
+$overall = $conn->prepare("SELECT AVG(rating) AS avg_rating, COUNT(*) AS count_reviews 
+                           FROM reviews 
+                           WHERE room_id=? AND is_visible=1");
+$overall->bind_param("i", $room_id);
+$overall->execute();
+$overall = $overall->get_result()->fetch_assoc();
+
 ?>
 <!doctype html>
 <html lang="en">
@@ -207,15 +213,82 @@ function calcEstimateFromTimes(rateId, startId, endId, totalId) {
 function normalizeDatetimeToHour(elementId) {
   const element = document.getElementById(elementId);
   if (element && element.value) {
-    const datetime = element.value;
+    const datetime = element.value; // "YYYY-MM-DDTHH:MM"
     if (datetime.includes('T')) {
       const [date, time] = datetime.split('T');
-      const [hours] = time.split(':');
-      element.value = `${date}T${hours.padStart(2, '0')}:00`;
+      let [hours, minutes] = time.split(':').map(Number);
+
+      // Round up if minutes > 0
+      if (minutes > 0) {
+        hours += 1;
+      }
+
+      // Handle day rollover
+      let newDate = date;
+      if (hours === 24) {
+        hours = 0;
+        const d = new Date(date);
+        d.setDate(d.getDate() + 1);
+        newDate = d.toISOString().split('T')[0];
+      }
+
+      element.value = `${newDate}T${hours.toString().padStart(2, '0')}:00`;
     }
   }
 }
 
+
+// --- Additional booking validation for time logic ---
+document.addEventListener('DOMContentLoaded', function () {
+  const startEl = document.getElementById('start_detail');
+  const endEl = document.getElementById('end_detail');
+  const bookBtn = document.querySelector('button.btn-success');
+  if (!startEl || !endEl || !bookBtn) return;
+
+  // Create a warning message element (reuse same style)
+  const warnTime = document.createElement('div');
+  warnTime.className = 'alert alert-warning mt-2';
+  warnTime.style.display = 'none';
+  bookBtn.insertAdjacentElement('afterend', warnTime);
+
+  function showWarning(msg) {
+    warnTime.textContent = msg;
+    warnTime.style.display = 'block';
+    bookBtn.disabled = true;
+  }
+
+  function hideWarning() {
+    warnTime.style.display = 'none';
+    bookBtn.disabled = false;
+  }
+
+  function validateBookingTimes() {
+    const now = Date.now();
+    const sMs = parseLocalDatetimeLocal(startEl.value);
+    const eMs = parseLocalDatetimeLocal(endEl.value);
+
+    if (!startEl.value || !endEl.value) {
+      hideWarning();
+      return;
+    }
+
+    if (isNaN(sMs) || isNaN(eMs)) {
+      hideWarning();
+      return;
+    }
+
+    if (sMs < now || eMs < now) {
+      showWarning('You cannot book a date/time that has already passed.');
+    } else if (eMs <= sMs) {
+      showWarning('End time must be later than start time.');
+    } else {
+      hideWarning();
+    }
+  }
+
+  startEl.addEventListener('change', validateBookingTimes);
+  endEl.addEventListener('change', validateBookingTimes);
+});
 // Disable booking if "online" payment is selected
 document.addEventListener('DOMContentLoaded', function () {
   const paymentSelect = document.querySelector('select[name="payment"]');
@@ -271,10 +344,17 @@ document.addEventListener('DOMContentLoaded', function () {
         <?php if ($imgsRes->num_rows): ?>
           <div class="row gallery-row">
             <?php while ($im = $imgsRes->fetch_assoc()): ?>
-              <div class="col-md-4 mb-3">
-                <img src="<?= htmlspecialchars($im['filepath']) ?>" class="img-fluid" style="height:160px;object-fit:cover;">
-              </div>
-            <?php endwhile; ?>
+  <div class="col-md-4 mb-3">
+    <img 
+      src="<?= htmlspecialchars($im['filepath']) ?>" 
+      class="img-fluid click-enlarge" 
+      data-src="<?= htmlspecialchars($im['filepath']) ?>" 
+      alt="Room image"
+      style="height:160px;object-fit:cover;cursor:zoom-in;"
+    >
+  </div>
+<?php endwhile; ?>
+
           </div>
         <?php else: ?>
           <div style="height:200px;background:#f8f8f8;display:flex;align-items:center;justify-content:center;color:#777;border-radius:8px;">
@@ -319,13 +399,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     <div class="col-md-4">
       <div class="card">
-        <div class="card-header">Motel Overview</div>
-        <div class="card-body">
-          <p><strong>Average rating:</strong> <?= $overall['avg_rating'] ? number_format($overall['avg_rating'], 2) : 'N/A' ?></p>
-          <p><strong>Total reviews:</strong> <?= $overall['count_reviews'] ?></p>
-          <a href="reviews.php" class="btn btn-outline-danger btn-sm mt-2">See all overall reviews</a>
-        </div>
-      </div>
+  <div class="card-header">Room Overview</div>
+  <div class="card-body">
+    <p><strong>Average rating for this room:</strong> 
+      <?= $overall['avg_rating'] ? number_format($overall['avg_rating'], 2) : 'N/A' ?>
+    </p>
+    <p><strong>Total reviews for this room:</strong> 
+      <?= $overall['count_reviews'] ?>
+    </p>
+    <a href="reviews.php" class="btn btn-outline-danger btn-sm mt-2">See all hotel reviews</a>
+  </div>
+</div>
+
 
       <div class="card">
         <div class="card-header">Book / Estimate</div>
@@ -360,11 +445,17 @@ document.addEventListener('DOMContentLoaded', function () {
       </div>
 
       <div class="card">
-        <div class="card-header">Leave a Review</div>
-        <div class="card-body">
-          <?php if (!empty($_GET['err']) && $_GET['err'] === 'cannot_submit_review'): ?>
-            <div class="alert alert-danger">You can only review this room after completing a booking.</div>
-          <?php endif; ?>
+  <div class="card-header">Leave a Review</div>
+  <div class="card-body">
+    <?php if (!empty($_GET['review']) && $_GET['review'] === 'success'): ?>
+      <div class="alert alert-success">
+        ✅ Your review has been successfully submitted! Thank you for your feedback.
+      </div>
+    <?php elseif (!empty($_GET['err']) && $_GET['err'] === 'cannot_submit_review'): ?>
+      <div class="alert alert-danger">
+        ⚠️ You can only submit a review after completing a booking for this room.
+      </div>
+    <?php endif; ?>
           <form method="post" action="reviews.php">
             <?php require_once __DIR__.'/includes/csrf.php'; echo csrf_input_field(); ?>
             <input type="hidden" name="room_type_id" value="<?= intval($room['room_type_id']) ?>">
